@@ -1,0 +1,416 @@
+{
+  "info": {
+    "_postman_id": "9dfc6119-2f44-4e49-8f27-0fbf8efb0f4e",
+    "name": "Products CRUD API",
+    "description": "End-to-end Postman collection for testing the Dockerized Node.js, Express, and MySQL Products CRUD API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "productId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Check API Root",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            ""
+          ]
+        },
+        "description": "Checks that the Express API is running."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('API status message is returned', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.message).to.eql('Products API is running');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Create Product",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Notebook\",\n  \"price\": 15000\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/products",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products"
+          ]
+        },
+        "description": "Creates a product and stores the generated product ID in the collection variable `productId`."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test('Product is created', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.message).to.eql('Product created successfully');",
+              "  pm.expect(json.product).to.have.property('id');",
+              "  pm.expect(json.product.name).to.eql('Notebook');",
+              "  pm.expect(json.product.price).to.eql(15000);",
+              "  pm.collectionVariables.set('productId', String(json.product.id));",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Get All Products",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/products",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products"
+          ]
+        },
+        "description": "Gets all products."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Products array is returned', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.products).to.be.an('array');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Get Product by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/products/{{productId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products",
+            "{{productId}}"
+          ]
+        },
+        "description": "Gets one product using the ID created earlier."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Expected product is returned', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(String(json.product.id)).to.eql(pm.collectionVariables.get('productId'));",
+              "  pm.expect(json.product.name).to.eql('Notebook');",
+              "  pm.expect(json.product.price).to.eql(15000);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Update Product",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Updated Notebook\",\n  \"price\": 20000\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/products/{{productId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products",
+            "{{productId}}"
+          ]
+        },
+        "description": "Updates the product created earlier."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Product is updated', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.message).to.eql('Product updated successfully');",
+              "  pm.expect(String(json.product.id)).to.eql(pm.collectionVariables.get('productId'));",
+              "  pm.expect(json.product.name).to.eql('Updated Notebook');",
+              "  pm.expect(json.product.price).to.eql(20000);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Confirm Updated Product",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/products/{{productId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products",
+            "{{productId}}"
+          ]
+        },
+        "description": "Confirms the updated product data."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Updated product is returned', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(String(json.product.id)).to.eql(pm.collectionVariables.get('productId'));",
+              "  pm.expect(json.product.name).to.eql('Updated Notebook');",
+              "  pm.expect(json.product.price).to.eql(20000);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Delete Product",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/products/{{productId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products",
+            "{{productId}}"
+          ]
+        },
+        "description": "Deletes the product created earlier."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Product is deleted', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.message).to.eql('Product deleted successfully');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - Confirm Deleted Product Returns 404",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/products/{{productId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products",
+            "{{productId}}"
+          ]
+        },
+        "description": "Confirms that the deleted product can no longer be found."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 404', function () {",
+              "  pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test('Product not found message is returned', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.message).to.eql('Product not found');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 - Invalid Create Body Returns 400",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"\",\n  \"price\": -1\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/products",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products"
+          ]
+        },
+        "description": "Checks validation for invalid product body."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 400', function () {",
+              "  pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test('Validation message is returned', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.message).to.eql('Product name must be a non-empty string and price must be a non-negative integer');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 - Missing Product Returns 404",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/products/999999",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products",
+            "999999"
+          ]
+        },
+        "description": "Checks missing product behavior."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 404', function () {",
+              "  pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test('Product not found message is returned', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.message).to.eql('Product not found');",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
